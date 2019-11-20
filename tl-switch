@@ -47,7 +47,7 @@ message () {
 
 if [ -e "/opt/tex/$USER" ]
 then
-    echo "Preparing to do context switch..."
+    echo "Context switch path exists: /opt/tex/$USER"
 else
     echo "You have not set up the ability to switch contexts."
     message
@@ -80,12 +80,18 @@ then
     then
         rm "/opt/tex/$USER/bin"
         ln -s "$target" "/opt/tex/$USER/bin"
+        echo "Resetting /opt/tex/$USER/bin to target:"
+        echo "$target"
     else
         ln -s "$target" "/opt/tex/$USER/bin"
+        echo "Setting /opt/tex/$USER/bin to target:"
+        echo "$target"
     fi
 elif [ "$1" = "no" ]
 then
     rm "/opt/tex/$USER/bin"
+    echo "Removing path: /opt/tex/$USER/bin"
+    echo "System default TeXLive is now used."
 else
     message
 fi
