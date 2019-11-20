@@ -1,7 +1,5 @@
-# tl19-switch
-Switch context between vanilla TeXLive and the distro version
-
-This script is used to switch between vanilla TeXLive 2019 and the version of TeXLive installed on a system like Debian, Ubuntu, Mint, etc.
+# tl-switch
+Switch context between vanilla TeXLive installed under /usr/local/texlive and the Linux distro version of TeXLive installed on a system like Debian, Ubuntu, Mint, etc.
 
 # Installing Vanilla TL
 For installing vanilla TL see: https://www.tug.org/texlive/acquire.html
@@ -21,7 +19,7 @@ Note that adduser and addgroup are Debian-isms; other distributions (and Debian-
     sudo groupadd texusers
     sudo usermod -a -G texusers "$USER"
 
-Then one can install TL 2019 as part of the texusers group.
+Then one can install TL as part of the texusers group.
 See also: https://www.tecmint.com/create-a-shared-directory-in-linux/
 
 The solution below is based on this answer:
@@ -35,17 +33,20 @@ We modify the procedure as follows:
         sudo mkdir -p /opt/tex/root
         sudo mkdir -p "/opt/tex/$USER"
         sudo chown -R "$USER":$USER" "/opt/tex/$USER"
+        
     and so on for each user. When using sudo, $USER will not necessarily point to root; test with:
 
         sudo echo "$USER"
-   One should not use desktop GUI programs while running `sudo`. Doing so can create files owned by root in one's home dir tree. That can prevent user programs from saving information properly. To do a full context switch do one of the following:
+        
+   One should avoid using desktop GUI programs while running `sudo`. Doing so may create files owned by root in one's home directory tree. That can prevent user programs from saving information properly. To do a full context switch, do one of the following:
 
         su
         sudo su
 
-3. We put this snippet in each user's .profile and in root's .bashrc:
+3. We put this snippet in each user's `.profile` and in root's `.bashrc`:
 
         if [ -d "/opt/tex/$USER/bin" ] ; then
             PATH="/opt/tex/$USER/bin:$PATH"
         fi
+        
    Remember to use `sudo su` or specify `/root/.bashrc` as the file. Otherwise `sudo nano ~/.bashrc` refers to the user's `.bashrc` file.
