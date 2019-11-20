@@ -1,0 +1,88 @@
+#!/bin/bash
+
+pause () {
+    echo ""
+    read -rsp $'Press any key to continue...\n' -n1 key
+    echo ""
+}
+
+message () {
+    echo ""
+    echo "This script is used to switch between vanilla TeXLive 2019 and the"
+    echo "version of TeXLive installed on a system like Debian, Ubuntu,"
+    echo "Mint, etc."
+    pause
+    echo "For installing vanilla TL see: https://www.tug.org/texlive/acquire.html"
+    echo ""
+    echo "Installing TL as root usually is OK. One can skip the following."
+    echo "To avoid installing TL as root, one could do something like:"
+    echo "    sudo addgroup texusers"
+    echo "    sudo addgroup \"\$USER\" texusers"
+    echo "    sudo mkdir -p /usr/local/texlive"
+    echo "    sudo chgrp -R texusers /usr/local/texlive"
+    echo "    sudo chmod -R 2775 /usr/local/texlive"
+    echo "Note that adduser and addgroup are Debian-isms; other distributions"
+    echo "(and Debian-based ones too) have the commands useradd and groupadd."
+    echo "See the man pages for those commands. Thus, you would use instead:"
+    echo "    sudo groupadd texusers"
+    echo "    sudo usermod -a -G texusers \"\$USER\""
+    echo "Then one can install TL 2019 as part of the texusers group."
+    echo "See: https://www.tecmint.com/create-a-shared-directory-in-linux/"
+    pause
+    echo "The solution below is based on this answer:"
+    echo "https://tex.stackexchange.com/questions/150892/multiple-texlive-installations"
+    echo ""
+    echo "We modify the procedure as follows:"
+    echo "1. We DO NOT modify /etc/profile.d because \$USER expands to root"
+    echo "   when that process runs. Only root can change the link"
+    echo "   for the TeX binary path. We want a multiuser solution."
+    echo "2. We create paths for each user to create directory links:"
+    echo "       sudo mkdir -p /opt/tex/root"
+    echo "       sudo mkdir -p \"/opt/tex/\$USER\""
+    echo "       sudo chown -R \"\$USER":"\$USER" "/opt/tex/\$USER\""
+    echo "   and so on for each user. When using sudo, \$USER will not"
+    echo "   necessarily point to root; test with:"
+    echo "       sudo echo \"\$USER\""
+    echo "   One should not use desktop GUI programs while running sudo."
+    echo "   Doing so creates files owned by root in one's home dir tree."
+    echo "   That can prevent user programs from saving information properly."
+    echo "   To do a full context switch do one of the following:"
+    echo "       su"
+    echo "       sudo su"
+    pause
+    echo "3. We put this snippet in each user's .profile and in root's .bashrc:"
+    echo "       if [ -d \"/opt/tex/\$USER/bin\" ] ; then"
+    echo "           PATH=\"/opt/tex/\$USER/bin:\$PATH\""
+    echo "       fi"
+    echo "   Remember to use \"sudo su\" or specify \"/root/.bashrc\" as the"
+    echo "   file. Otherwise \"sudo nano ~/.bashrc\" refers to the user's"
+    echo "   .bashrc file."
+}
+
+if [ -e "/opt/tex/$USER" ]
+then
+    echo "Preparing to do context switch..."
+else
+    echo "You have not set up the ability to switch contexts."
+    message
+    exit 1
+fi
+
+if [ "$1" = "yes" ]
+then
+    if [ -e "/opt/tex/$USER/bin" ]
+    then
+        echo "Jim, I'm a doctor, not a bricklayer. Link exists."
+        exit 1
+    else
+        ln -s /usr/local/texlive/2019/bin/i386-linux "/opt/tex/$USER/bin"
+    fi
+elif [ "$1" = "no" ]
+then
+    rm "/opt/tex/$USER/bin"
+else
+    echo ""
+    echo "usage: tl19-switch yes|no"
+    message
+    exit 1
+fi
