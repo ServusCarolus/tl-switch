@@ -41,7 +41,7 @@ message () {
     echo "       fi"
     echo "   Remember to use \"sudo su\" or specify \"/root/.bashrc\" as the"
     echo "   file. Otherwise \"sudo nano ~/.bashrc\" refers to the user's"
-    echo "   .bashrc file."
+    echo "   .bashrc file. Reboot to reset the paths for all users."
     exit 1
 }
 
