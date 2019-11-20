@@ -8,7 +8,16 @@ pause () {
 
 message () {
     echo ""
-    echo "This script is used to switch between vanilla TeXLive 2019 and the"
+    echo "usage: tl-switch yes [year]"
+    echo "       tl-switch no"
+    echo ""
+    echo "       [year] is optional, with the form 20XX."
+    echo "       It defaults to 2019. Thus:"
+    echo "           \"tl-switch yes\""
+    echo "       is the same as"
+    echo "           \"tl-switch yes 2019\""
+    echo ""
+    echo "This script is used to switch between vanilla TeXLive and the"
     echo "version of TeXLive installed on a system like Debian, Ubuntu,"
     echo "Mint, etc."
     pause
@@ -33,6 +42,7 @@ message () {
     echo "   Remember to use \"sudo su\" or specify \"/root/.bashrc\" as the"
     echo "   file. Otherwise \"sudo nano ~/.bashrc\" refers to the user's"
     echo "   .bashrc file."
+    exit 1
 }
 
 if [ -e "/opt/tex/$USER" ]
@@ -41,24 +51,41 @@ then
 else
     echo "You have not set up the ability to switch contexts."
     message
-    exit 1
+fi
+
+if [ -z "$2" ]
+then
+    year="2019"
+else
+    year="$2"
+fi
+
+if [ "$1" = "yes" ]
+then
+    if [ -d "/usr/local/texlive/$year/bin/i386-linux" ]
+    then
+        target="/usr/local/texlive/$year/bin/i386-linux"
+    elif [ -d "/usr/local/texlive/$year/bin/x86_64-linux" ]
+    then
+        target="/usr/local/texlive/$year/bin/x86_64-linux"
+    else
+        echo "Target directory does not exist."
+        message
+    fi
 fi
 
 if [ "$1" = "yes" ]
 then
     if [ -e "/opt/tex/$USER/bin" ]
     then
-        echo "Jim, I'm a doctor, not a bricklayer. Link exists."
-        exit 1
+        rm "/opt/tex/$USER/bin"
+        ln -s "$target" "/opt/tex/$USER/bin"
     else
-        ln -s /usr/local/texlive/2019/bin/i386-linux "/opt/tex/$USER/bin"
+        ln -s "$target" "/opt/tex/$USER/bin"
     fi
 elif [ "$1" = "no" ]
 then
     rm "/opt/tex/$USER/bin"
 else
-    echo ""
-    echo "usage: tl19-switch yes|no"
     message
-    exit 1
 fi
