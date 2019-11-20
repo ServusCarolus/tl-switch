@@ -50,3 +50,6 @@ We modify the procedure as follows:
         fi
         
    Remember to use `sudo su` or specify `/root/.bashrc` as the file. Otherwise `sudo nano ~/.bashrc` refers to the user's `.bashrc` file.
+
+After this procedure is done, it is good to restart the machine before using TeXLive so that the paths for root and the users can be updated properly.
+
