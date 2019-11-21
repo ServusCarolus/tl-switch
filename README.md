@@ -16,9 +16,9 @@ Installing TL as root usually is OK, but one must additionally create a shell sc
     
 Yes, one can use `vi` instead; the above is geared for beginners. Then we insert the following snippet:
 
-        if [ -d "/opt/tex/root/bin" ] ; then
-            PATH="/opt/tex/root/bin:$PATH"
-        fi
+    if [ -d "/opt/tex/root/bin" ] ; then
+        PATH="/opt/tex/root/bin:$PATH"
+    fi
 
 We save the file and we are done with this step.
 
