@@ -16,9 +16,7 @@ Installing TL as root usually is OK, but one must additionally create a shell sc
     
 Then we insert the following snippet:
 
-    if [ -d "/opt/tex/root/bin" ] ; then
-        PATH="/opt/tex/root/bin:$PATH"
-    fi
+    export PATH=/opt/tex/root/bin:${PATH}
 
 We save the file and we are done with this step.
 
