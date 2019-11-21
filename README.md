@@ -16,7 +16,7 @@ When installing vanilla TL as root and using this script, one must type, e.g., `
 
         sudo env PATH=$PATH tlmgr -gui
     
-2. Use the common group route below and do not use `sudo`, but set the directories to what they would have been if you did.
+2. Use the common group route below and do not use `sudo`, but set the directories to exist under `/usr/local/texlive/` as you would, had you installed via `sudo`..
 
 Regardless of the issues above, normal use works as expected.
 
