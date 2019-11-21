@@ -52,15 +52,13 @@ See also: https://www.tecmint.com/create-a-shared-directory-in-linux/
 We create paths for each user to create directory links:
 
     sudo mkdir -p /opt/tex/root
-    sudo mkdir -p "/opt/tex/$USER"
-    sudo chown -R "$USER":$USER" "/opt/tex/$USER"
+    sudo mkdir "/opt/tex/$USER"
+    sudo chown "$USER":$USER" "/opt/tex/$USER"
         
 We repeat the final two lines for each user, most likely substituting each username for $USER, e.g.:
 
-    sudo mkdir -p /opt/tex/bob
-    sudo chown -R bob:bob /opt/tex/bob
-
-The arguments to `mkdir` and `chown` avoid error messages being generated.
+    sudo mkdir /opt/tex/bob
+    sudo chown bob:bob /opt/tex/bob
 
 # Step 4: Modifying profiles
 We put this snippet in each user's `.profile` and in root's `.bashrc`:
@@ -91,6 +89,6 @@ To specify another installation under `/usr/local/texlive`, use, e.g.:
 
     tl-switch yes 2018
 
-To disable vanilla TL, one need only type:
+To disable vanilla TL and use the distro version, one need only type:
 
     tl-switch no
