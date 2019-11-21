@@ -4,33 +4,21 @@ Switch context between vanilla TeXLive installed under /usr/local/texlive and th
 The script and installation are based on ths answers at:
 https://tex.stackexchange.com/questions/150892/multiple-texlive-installations
 
-# Step 1: Install Vanilla TL
-For installing vanilla TL see: https://www.tug.org/texlive/acquire.html
+# Caveat: A Word about `sudo`
+Even if one creates a shell script in `/etc/profile.d` in order to put a symbolic link to the vanilla TL path before `/usr/bin` in the command search path, the `sudo` command will not follow the link by default.
 
-**Note: Please do not install the symbolic links when installing vanilla TL.**
+When installing vanilla TL as root and using this script, one must type, e.g., `sudo su` to switch contexts to the superuser before running `tlmgr`. Otherwise, you will need to consider the common group route below or get the `sudo` context to follow the symlinks. It seems, however, that normal use works as expected.
 
-# Step 2: Make Context for `sudo`
-Installing TL as root usually is OK, but one must additionally create a shell script in `/etc/profile.d` in order that the `sudo` command have proper context. Otherwise, `sudo tlmgr version` will show the distro version and not vanilla TL even if one does that as the root user! We create the file `/etc/profile.d/texlive.sh` and open it for editing, such as:
-
-    sudo nano /etc/profile.d/texlive.sh
-    
-Then we insert the following snippet:
-
-    export PATH=/opt/tex/root/bin:${PATH}
-
-We save the file and we are done with this step.
-
-# Excursus: Context and `sudo`
 When using sudo, $USER will not necessarily point to root; test with:
 
         sudo echo "$USER"
         
-So even if one gets superuser privileges, one's environment and similar context may not have changed. Although the GUI interface of `tlmgr` is not a problem, one should avoid using many desktop-integrated GUI programs while running `sudo`. Doing so may create files owned by root in one's home directory tree. That can prevent user programs from saving information properly.
+Although the GUI interface of `tlmgr` will not create files owned by root when run via `sudo`, one should avoid using many desktop-integrated GUI programs while running `sudo`. Doing so may create files owned by root in one's home directory tree. That can prevent user programs from saving information properly.
    
 To do a full context switch, do either `su` or `sudo su`, depending on the distribution.
 
 # Excursus: Make a Group
-Another way to handle this issue is to make the TeXLive installation writeable to all TeX users. Then the use of `sudo` might be avoided during installation. The problem here is that chaos might ensue if multiple users set conflicting configurations. Nevertheless, we include this for completeness:
+Another way to avoid problems with `sudo` is to make the TeXLive installation writeable to all TeX users. The problem here is that chaos might ensue if multiple users meddle with the installation. We include this for completeness:
 
     sudo addgroup texusers
     sudo addgroup "$USER" texusers
@@ -46,7 +34,12 @@ Note that adduser and addgroup are Debian-isms; other distributions (and Debian-
 Then one can install TL as part of the texusers group.
 See also: https://www.tecmint.com/create-a-shared-directory-in-linux/
 
-# Step 3: Create Directories
+# Step 1: Install Vanilla TL
+For installing vanilla TL see: https://www.tug.org/texlive/acquire.html
+
+**Note: Never install the symbolic links when installing vanilla TL.**
+
+# Step 2: Create Directories
 We create paths for each user to create directory links:
 
     sudo mkdir -p /opt/tex/root
@@ -58,7 +51,7 @@ We repeat the final two lines for each user, most likely substituting each usern
     sudo mkdir /opt/tex/bob
     sudo chown bob:bob /opt/tex/bob
 
-# Step 4: Modifying profiles
+# Step 3: Modifying profiles
 We put this snippet in each user's `.profile` and in root's `.bashrc`:
 
     if [ -d "/opt/tex/$USER/bin" ] ; then
@@ -67,7 +60,7 @@ We put this snippet in each user's `.profile` and in root's `.bashrc`:
         
 When editing root's `.bashrc`, remember to use `sudo su` or specify `/root/.bashrc` as the file. Otherwise `sudo nano ~/.bashrc` refers to the user's `.bashrc` file instead.
 
-# Step 5: Install the Script
+# Step 4: Install the Script
 We go to the directory where we downloaded or cloned the repository and locate the `tl-switch` script. We then type:
 
     sudo cp ./tl-switch /usr/local/bin
@@ -75,10 +68,10 @@ We go to the directory where we downloaded or cloned the repository and locate t
     
 All users now will have access to running the script.
 
-# Step 6: Reboot
+# Step 5: Reboot
 After the install procedure is done, it is good to restart the machine before using TeXLive so that the paths for root and the users can be updated properly.
 
-# Step 7: Switching to and from Vanilla TeXLive
+# Step 6: Switching to and from Vanilla TeXLive
 When a user (or root) wants to enable access to vanilla TL 2019, one need only type:
 
     tl-switch yes
@@ -90,3 +83,6 @@ To specify another installation under `/usr/local/texlive`, use, e.g.:
 To disable vanilla TL and use the distro version, one need only type:
 
     tl-switch no
+
+# Final Thoughts
+An immediate downside to this method is needing to, e.g., `sudo su` to switch contexts to the superuser before running `tlmgr`. Its benefits include isolating users from each other and allowing one to change contexts without extensive system modification. Yet contexts only should be changed before logging out and back in again to avoid problems.
