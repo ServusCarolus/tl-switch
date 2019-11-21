@@ -7,18 +7,18 @@ https://tex.stackexchange.com/questions/150892/multiple-texlive-installations
 # Step 1: Install Vanilla TL
 For installing vanilla TL see: https://www.tug.org/texlive/acquire.html
 
-Note: Please do not install the symbolic links when installing vanilla TL.
+**Note: Please do not install the symbolic links when installing vanilla TL.**
 
 # Step 2: Make Context for `sudo`
 Installing TL as root usually is OK, but one must additionally create a shell script in `/etc/profile.d` in order that the `sudo` command have proper context. Otherwise, `sudo tlmgr version` will show the distro version and not vanilla TL even if one does that as the root user! We create the file `/etc/profile.d/texlive.sh` and open it for editing, such as:
 
     sudo nano /etc/profile.d/texlive.sh
     
-Yes, one can use `vi` instead; the above is geared for beginners. Then we insert the following snippet:
+Then we insert the following snippet:
 
-    if [ -d "/opt/tex/root/bin" ] ; then
-        PATH="/opt/tex/root/bin:$PATH"
-    fi
+    if [ -d "/opt/tex/root/bin" ] ; then
+        PATH="/opt/tex/root/bin:$PATH"
+    fi
 
 We save the file and we are done with this step.
 
