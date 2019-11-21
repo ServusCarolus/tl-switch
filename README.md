@@ -10,11 +10,17 @@ Even if one creates a shell script in `/etc/profile.d` in order to put a symboli
 The issue is that Debian and friends build `sudo` to use `secure_path`. There are various workarounds to this issue, depending on the user's preference. See:
 https://stackoverflow.com/questions/257616/why-does-sudo-change-the-path
 
-When installing vanilla TL as root and using this script, one must type, e.g., `sudo su` to switch contexts to the superuser before running `tlmgr`. Otherwise, you will need to consider the common group route below or get the `sudo` context to follow the symlinks by hacking the system, as shown in the link above. It seems, however, that normal use works as expected.
+When installing vanilla TL as root and using this script, one must type, e.g., `sudo su` to switch contexts to the superuser before running `tlmgr`. Alternatives include:
 
-When using sudo, $USER will not necessarily point to root; test with:
+1. The least invasive route, e.g.:
 
-        sudo echo "$USER"
+        sudo env PATH=$PATH tlmgr -gui
+    
+2. Use the common group route below and do not use `sudo`, but set the directories to what they would have been if you did.
+
+Regardless of the issues above, normal use works as expected.
+
+Observe caution when editing files. For example, `sudo echo "$USER"` should point to the regular user, not root. That means one should avoid shortcuts like `~./` in file paths. One should use unambiguous, full paths.
         
 Although the GUI interface of `tlmgr` will not create files owned by root when run via `sudo`, one should avoid using many desktop-integrated GUI programs while running `sudo`. Doing so may create files owned by root in one's home directory tree. That can prevent user programs from saving information properly.
    
@@ -60,7 +66,9 @@ We put this snippet in each user's `.profile` and in root's `.bashrc`:
     if [ -d "/opt/tex/$USER/bin" ] ; then
         PATH="/opt/tex/$USER/bin:$PATH"
     fi
-        
+
+Another approach would put the snippet in everyone's `.bashrc`, then add `source .bashrc` to everyone's `.profile`. That would renew the path environment every time one opens a terminal. Or one can set terminals to open a login shell.
+
 When editing root's `.bashrc`, remember to use `sudo su` or specify `/root/.bashrc` as the file. Otherwise `sudo nano ~/.bashrc` refers to the user's `.bashrc` file instead.
 
 # Step 4: Install the Script
@@ -86,6 +94,8 @@ To specify another installation under `/usr/local/texlive`, use, e.g.:
 To disable vanilla TL and use the distro version, one need only type:
 
     tl-switch no
+
+If one changes context in the middle of a session, the search paths will not change. One way to tackle that (somewhat) is mentioned in Step 3 above.
 
 # Final Thoughts
 An immediate downside to this method is needing to, e.g., `sudo su` to switch contexts to the superuser before running `tlmgr`. Its benefits include isolating users from each other and allowing one to change contexts without extensive system modification. Yet contexts only should be changed before logging out and back in again to avoid problems.
