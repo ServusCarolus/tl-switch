@@ -7,7 +7,10 @@ https://tex.stackexchange.com/questions/150892/multiple-texlive-installations
 # Caveat: A Word about `sudo`
 Even if one creates a shell script in `/etc/profile.d` in order to put a symbolic link to the vanilla TL path before `/usr/bin` in the command search path, the `sudo` command will not follow the link by default.
 
-When installing vanilla TL as root and using this script, one must type, e.g., `sudo su` to switch contexts to the superuser before running `tlmgr`. Otherwise, you will need to consider the common group route below or get the `sudo` context to follow the symlinks. It seems, however, that normal use works as expected.
+The issue is that Debian and friends build `sudo` to use `secure_path`. There are various workarounds to this issue, depending on the user's preference. See:
+https://stackoverflow.com/questions/257616/why-does-sudo-change-the-path
+
+When installing vanilla TL as root and using this script, one must type, e.g., `sudo su` to switch contexts to the superuser before running `tlmgr`. Otherwise, you will need to consider the common group route below or get the `sudo` context to follow the symlinks by hacking the system, as shown in the link above. It seems, however, that normal use works as expected.
 
 When using sudo, $USER will not necessarily point to root; test with:
 
