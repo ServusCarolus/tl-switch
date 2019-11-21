@@ -1,11 +1,5 @@
 #!/bin/bash
 
-pause () {
-    echo ""
-    read -rsp $'Press any key to continue...\n' -n1 key
-    echo ""
-}
-
 message () {
     echo ""
     echo "usage: tl-switch yes [year]"
@@ -19,26 +13,7 @@ message () {
     echo ""
     echo "This script is used to switch between vanilla TeXLive and the"
     echo "version of TeXLive installed on a system like Debian, Ubuntu,"
-    echo "Mint, etc."
-    pause
-    echo "For installing vanilla TL see: https://www.tug.org/texlive/acquire.html"
-    echo "and the README.md file provided with this shell script."
-    echo ""
-    echo "The README.md file explains installation in detail. Briefly, we:"
-    echo "1. Create paths for each user to create directory links:"
-    echo "       sudo mkdir -p /opt/tex/root"
-    echo "       sudo mkdir -p \"/opt/tex/\$USER\""
-    echo "       sudo chown -R \"\$USER\":\"\$USER\" \"/opt/tex/\$USER\""
-    echo "   and so on for each user. Again, see README.md.
-    echo "   A full context switch requires one of the following:"
-    echo "       \"su\" or \"sudo su\""
-    echo "2. Put this snippet in each user's .profile and in root's .bashrc:"
-    echo "       if [ -d \"/opt/tex/\$USER/bin\" ] ; then"
-    echo "           PATH=\"/opt/tex/\$USER/bin:\$PATH\""
-    echo "       fi"
-    echo "   Remember to use \"sudo su\" or specify \"/root/.bashrc\" as the"
-    echo "   file. Otherwise \"sudo nano ~/.bashrc\" refers to the user's"
-    echo "   .bashrc file. Reboot to reset the paths for all users."
+    echo "Mint, etc. See the README.md file for installation."
     exit 1
 }
 
