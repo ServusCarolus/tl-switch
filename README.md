@@ -124,7 +124,7 @@ To disable vanilla TL and use the distro version, one need only type:
 
 If one changes context in the middle of a session, the search paths will not change. What this means is, in short, one must exit and restart the session to avoid errors. Here is why:
 
- 1. If the initial path was /opt/tex/$USER/bin and you run `tl-switch no`, the original path will not find anything and the system distro will work out of `/usr/bin` and `/usr/share/texlive`. Invoking `tl-switch yes` will cause the original path to work again and the distro version will not be used. BUT this context switch can confuse programs like `kpsewhich`.
+ 1. If the initial path was `/opt/tex/$USER/bin` and you run `tl-switch no`, the original path will not find anything and the system distro will work out of `/usr/bin` and `/usr/share/texlive`. Invoking `tl-switch yes` will cause the original path to work again and the distro version will not be used. BUT this context switch can confuse programs like `kpsewhich`.
  
  2. If the initial path was `/usr/bin`, then running `tl-switch yes` will not change `$PATH`. Sourcing `.profile` and the like will work in a terminal window, but only in that terminal window.
  
