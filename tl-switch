@@ -1,15 +1,19 @@
 #!/bin/bash
 
+# This is a help / error message that is called when things do not
+# proceed as expected or as a default action.
 message () {
     echo ""
     echo "usage: tl-switch yes [year]"
     echo "       tl-switch no"
     echo ""
     echo "       [year] is optional, with the form 20XX."
-    echo "       It defaults to 2019. Thus:"
+    echo "       Default is the newest TL release installed:"
     echo "           \"tl-switch yes\""
-    echo "       is the same as"
+    echo "       For another release, include the year, e.g.:"
     echo "           \"tl-switch yes 2019\""
+    echo "       For the system packages instead:"
+    echo "           \"tl-switch no\""
     echo ""
     echo "This script is used to switch between vanilla TeXLive and the"
     echo "version of TeXLive installed on a system like Debian, Ubuntu,"
@@ -17,6 +21,7 @@ message () {
     exit 1
 }
 
+# If the paths are not set up, abort with a message to RTFM.
 if [ -e "/opt/tex/$USER" ]
 then
     echo "Context switch path exists: /opt/tex/$USER"
@@ -25,13 +30,39 @@ else
     message
 fi
 
+# If there is no argument for year, iterate through a decade of
+# possible results and get the newest one.
 if [ -z "$2" ]
 then
-    year="2019"
+    if   [ -d "/usr/local/texlive/2017" ]
+        year="2017"
+    elif [ -d "/usr/local/texlive/2018" ]
+        year="2018"
+    elif [ -d "/usr/local/texlive/2019" ]
+        year="2019"
+    elif [ -d "/usr/local/texlive/2020" ]
+        year="2020"
+    elif [ -d "/usr/local/texlive/2021" ]
+        year="2021"
+    elif [ -d "/usr/local/texlive/2022" ]
+        year="2022"
+    elif [ -d "/usr/local/texlive/2023" ]
+        year="2023"
+    elif [ -d "/usr/local/texlive/2024" ]
+        year="2024"
+    elif [ -d "/usr/local/texlive/2025" ]
+        year="2025"
+    elif [ -d "/usr/local/texlive/2026" ]
+        year="2026"
+    fi
+# If an argument for year exists, use that argument.
 else
     year="$2"
 fi
 
+# Try to find the path for the context switch. If there are 32-bit
+# binary files, use them. Otherwise, check for 64-bit files.
+# If that fails, throw an error.
 if [ "$1" = "yes" ]
 then
     if [ -d "/usr/local/texlive/$year/bin/i386-linux" ]
@@ -41,11 +72,13 @@ then
     then
         target="/usr/local/texlive/$year/bin/x86_64-linux"
     else
-        echo "Target directory does not exist."
+        echo "Target binary directory does not exist."
         message
     fi
 fi
 
+# To do the vanilla switch, destroy the current link and
+# create a new link in its place.
 if [ "$1" = "yes" ]
 then
     if [ -e "/opt/tex/$USER/bin" ]
@@ -59,11 +92,13 @@ then
         echo "Setting /opt/tex/$USER/bin to target:"
         echo "$target"
     fi
+# Otherwise, nuke the vanilla link.
 elif [ "$1" = "no" ]
 then
     rm "/opt/tex/$USER/bin"
     echo "Removing path: /opt/tex/$USER/bin"
     echo "System default TeXLive is now used."
+# If the argument was something else, abort with a message.
 else
     message
 fi
