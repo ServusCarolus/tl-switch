@@ -35,24 +35,34 @@ fi
 if [ -z "$2" ]
 then
     if   [ -d "/usr/local/texlive/2017" ]
+    then
         year="2017"
     elif [ -d "/usr/local/texlive/2018" ]
+    then
         year="2018"
     elif [ -d "/usr/local/texlive/2019" ]
+    then
         year="2019"
     elif [ -d "/usr/local/texlive/2020" ]
+    then
         year="2020"
     elif [ -d "/usr/local/texlive/2021" ]
+    then
         year="2021"
     elif [ -d "/usr/local/texlive/2022" ]
+    then
         year="2022"
     elif [ -d "/usr/local/texlive/2023" ]
+    then
         year="2023"
     elif [ -d "/usr/local/texlive/2024" ]
+    then
         year="2024"
     elif [ -d "/usr/local/texlive/2025" ]
+    then
         year="2025"
     elif [ -d "/usr/local/texlive/2026" ]
+    then
         year="2026"
     fi
 # If an argument for year exists, use that argument.
