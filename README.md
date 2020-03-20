@@ -110,11 +110,11 @@ All users now will have access to running the script.
 After the install procedure is done, it is good to restart the machine before using TeXLive so that the paths for root and the users can be updated properly.
 
 # Step 6: Switching to and from Vanilla TeXLive
-When a user (or root) wants to enable access to vanilla TL 2019, one need only type:
+As a new version of TL is released, the default year is updated. When a user (or root) wants to enable access to the current year release of vanilla TL, one need only type:
 
     tl-switch yes
 
-To specify another installation under `/usr/local/texlive`, use, e.g.:
+To specify another installation under `/usr/local/texlive`, such as older editions or pretests, use, e.g.:
 
     tl-switch yes 2018
 
@@ -126,9 +126,9 @@ To disable vanilla TL and use the distro version, one need only type:
 
  1. If the initial path was `/opt/tex/$USER/bin` and you run `tl-switch no`, the original path will not find anything and the system distro will work out of `/usr/bin` and `/usr/share/texlive`. Invoking `tl-switch yes` will cause the original path to work again and the distro version will not be used. BUT this context switch can confuse programs like `kpsewhich`.
  
- 2. If the initial path was `/usr/bin`, then running `tl-switch yes` will not change `$PATH`. Sourcing `.profile` and the like will work in a terminal window, but only in that terminal window.
+ 2. If the initial path was `/usr/bin`, then running `tl-switch yes` will not change `$PATH`. Sourcing `.profile` and the like will work in a terminal window, but only in that terminal window. Otherwise, the system version will be used until one logs out and in again.
  
- 3. In general, one should first set up the system TeX packages as root. After that, have the default TeXlive session in the root account point to the current version of TeXlive. When updating system TeXlive packages, first use `tl-switch no` before updating, then revert back to the current TL version.
+ 3. In general, one should first set up the system TeX packages as root. After that, one can have the default TeXlive session in the root account point to the current version of TeXlive. When updating system TeXlive packages, first use `tl-switch no` before updating, then revert back to the desired TL version.
 
 See Step 3 above for more on how to tackle these issues.
 
