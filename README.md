@@ -1,7 +1,7 @@
 # tl-switch
 Switch context between multiple vanilla TeXLive instances installed under /usr/local/texlive and the Linux distro version of TeXLive. This shell script has been tested on Ubuntuand Linux Mint.
 
-The script and installation are based on ths answers at:
+The script and installation are based on the answers at:
 https://tex.stackexchange.com/questions/150892/multiple-texlive-installations
 
 # Caveat: A Word about paths
@@ -34,12 +34,12 @@ Observe caution when editing files. For example, `sudo echo "$HOME"` will point 
 Although the GUI interface of `tlmgr` will not create files owned by root when run via `sudo`, one should avoid running many desktop-integrated GUI programs using `sudo`. Doing so may create files owned by root in one's home directory tree. That can prevent user programs from saving information properly. One can find such files using something like `find "$HOME" -type f -user root`. Then it is simple to use `sudo chown` to fix the ownership. This tends to be an issue created by quick-and-dirty, bad advice on many online fora.
 
 # Context Is Key
-To do a full context switch, do either `su` or `sudo su`, depending on the distribution and whether or not one has set up a password for the root user. That will point `$HOME` to the root account.That is very important to do when using this script, because the whole premise is to isolate users from each other.
+To do a full context switch, do either `su` or `sudo su`, depending on the distribution and whether or not one has set up a password for the root user. Using `su -` will change the current working directory to `/root`. Either method will point `$HOME` to the root account. That is very important to do when using this script, because the whole premise is to isolate users from each other.
 
 # Excursus: Make a Group
 We include this excursus for completeness, but we do not implement this approach in the numbered steps below. Nevertheless, experienced users can implement this alternate option.
 
-Another way to avoid problems with `sudo` is to make the TeXLive installation writeable to all TeX users. The problem that results is that chaos might ensue if multiple users meddle with the installation. One could avoid that by using the group approach and letting only one user in that group have write privileges. Both alternatives are shown below.
+Another way to avoid problems with `sudo` is to make the TeXLive installation writeable to all TeX users. The problem that results is that chaos might ensue if multiple users meddle with the installation. One could avoid that by using the group approach and letting only one user in that group have write privileges to the local installation. Both alternatives are shown below.
 
 All users in the `texusers` group have read, write, and searchability:
 ```
@@ -82,10 +82,12 @@ We create paths for each user to create directory links:
     sudo mkdir "/opt/tex/$USER"
     sudo chown "$USER":$USER" "/opt/tex/$USER"
         
-We repeat the final two lines for each user, most likely substituting each username for $USER, e.g.:
+One only needs the `-p` option for the first `mkdir`; all the others will build off that same path. We repeat the final two lines for each user, most likely substituting each username for $USER, e.g.:
 
     sudo mkdir /opt/tex/bob
     sudo chown bob:bob /opt/tex/bob
+
+One could turn this step into a script runnable via `sudo`.
 
 # Step 3: Modifying profiles
 We put this snippet in each user's `.profile` and in root's `.bashrc`:
@@ -94,9 +96,11 @@ We put this snippet in each user's `.profile` and in root's `.bashrc`:
         PATH="/opt/tex/$USER/bin:$PATH"
     fi
 
-Another approach would put the snippet in everyone's `.bashrc`, then add `source .bashrc` to everyone's `.profile`. That would renew the path environment every time one opens a terminal. Or one can set terminals to open a login shell. Consider also visiting the (hidden) files in `/etc/skel` if making new users on a server in order to make changes automatically, but know what you are doing.
+The reason why root is treated differently is because the way in which the files are loaded in Debian-based Linux distributions. Note that for other setups, possibly different approaches may be needed.
 
-When editing root's `.bashrc`, remember to use `su`, `sudo su`, or specify `/root/.bashrc` as the file. Otherwise `sudo nano ~/.bashrc` refers to the user's `.bashrc` file instead.
+Another approach would put the snippet in everyone's `.bashrc`, then add `source .bashrc` to everyone's `.profile`. That would renew the path environment every time one opens a terminal. Or one can set terminals to open a login shell by default. Consider also visiting the (hidden) files in `/etc/skel` if making new users on a server in order to make changes automatically, but know what you are doing.
+
+When editing root's `.bashrc`, remember to use `su -`, `sudo su -`, or specify `/root/.bashrc` as the file. Otherwise `sudo nano ~/.bashrc` refers to the user's `.bashrc` file instead.
 
 # Step 4: Install the Script
 We go to the directory where we downloaded or cloned the repository and locate the `tl-switch` script. We then type:
@@ -110,7 +114,7 @@ All users now will have access to running the script.
 After the install procedure is done, it is good to restart the machine before using TeXLive so that the paths for root and the users can be updated properly.
 
 # Step 6: Switching to and from Vanilla TeXLive
-As a new version of TL is released, the default year is updated. When a user (or root) wants to enable access to the current year release of vanilla TL, one need only type:
+As a new version of TL is released, the default year is updated. When a user (or root) wants to enable access to the most current year release of vanilla TL under `/usr/local/texlive`, one need only type:
 
     tl-switch yes
 
@@ -126,11 +130,11 @@ To disable vanilla TL and use the distro version, one need only type:
 
  1. If the initial path was `/opt/tex/$USER/bin` and you run `tl-switch no`, the original path will not find anything and the system distro will work out of `/usr/bin` and `/usr/share/texlive`. Invoking `tl-switch yes` will cause the original path to work again and the distro version will not be used. BUT this context switch can confuse programs like `kpsewhich`.
  
- 2. If the initial path was `/usr/bin`, then running `tl-switch yes` will not change `$PATH`. Sourcing `.profile` and the like will work in a terminal window, but only in that terminal window. Otherwise, the system version will be used until one logs out and in again.
+ 2. If the initial path was `/usr/bin`, then running `tl-switch yes` will not change `$PATH`. Even if `/opt/tex/$USER/bin` is in the path, because it did not exist as a symlink at login, it gets skipped. Sourcing `.profile` and the like will update the path in a terminal window, but only in that specific terminal window. Otherwise, the system version generally will be used until one logs out and in again.
  
- 3. In general, one should first set up the system TeX packages as root. After that, one can have the default TeXlive session in the root account point to the current version of TeXlive. When updating system TeXlive packages, first use `tl-switch no` before updating, then revert back to the desired TL version.
+ 3. One first should install/update the system TeX packages as root. After that, one can install vanilla TeXlive and use `tl-switch yes` to have the default TeXlive for the root account point to the desired installation. This allows one to become root and update TL, while users can point to whatever TL version they want. When updating system TeXlive packages, is is recommended first to use `tl-switch no` before updating, then `tl-switch yes` to revert back to the desired vanilla TL version.
 
 See Step 3 above for more on how to tackle these issues.
 
 # Final Thoughts
-An immediate downside to this method is needing to, e.g., `sudo su` to switch contexts to the superuser before running `tlmgr`. Another downside is adding a level of complexity when using different versions and updating packages. Its benefits include isolating users from each other and allowing one to change contexts without extensive system modification.
+An immediate downside to this method is needing to, e.g., `sudo su` to switch contexts to the superuser before running `tlmgr`. Another downside is adding a level of complexity when using different versions and updating packages. Its benefits include isolating users from each other and allowing one to change contexts without extensive system modification or restarting the system.
