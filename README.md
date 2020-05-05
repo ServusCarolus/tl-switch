@@ -4,6 +4,10 @@ Switch context between multiple vanilla TeXLive instances installed under /usr/l
 The script and installation are based on the answers at:
 https://tex.stackexchange.com/questions/150892/multiple-texlive-installations
 
+# Caveat: Multiple TL Instances
+
+Having multiple instances of TeXLive may make it necessary to remove an instance manually. For example, if one has TL 2019 and TL 2020 installed, and wants to remove TL 2019, `tlmgr` will report a removal, but do nothing. One must do something like `sudo rm -rf /usr/local/texlive/2019/`, then remove all local folders in user directories that refer to TL 2019. As long as one has not created links in `/usr/local/bin`, which one should not do, there should be no side effects. One should remember to look at GUI config files as well to resolve any paths and program references.
+
 # Caveat: A Word about paths
 
 It is quite probable that an IDE will not use the $PATH variable. Instead, it will use its own mechanism for handling paths. One must fix this by putting `/opt/tex/`<user>`/bin` as the first directory in the path used by the IDE, where <user> is replaced by the current username. That will ensure the proper function of this script.
