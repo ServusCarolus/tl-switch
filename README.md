@@ -6,7 +6,13 @@ https://tex.stackexchange.com/questions/150892/multiple-texlive-installations
 
 # Caveat: Multiple TL Instances
 
-Having multiple instances of TeXLive may make it necessary to remove an instance manually. For example, if one has TL 2019 and TL 2020 installed, and wants to remove TL 2019, `tlmgr` will report a removal, but do nothing. One must do something like `sudo rm -rf /usr/local/texlive/2019/`, then remove all local folders in user directories that refer to TL 2019. As long as one has not created links in `/usr/local/bin`, which one should not do, there should be no side effects. One should remember to look at GUI config files as well to resolve any paths and program references.
+Having multiple instances of TeXLive complicates matters. The problem is that the directory `/usr/local/texlive/texmf-local` is used by the current installation of TL. If one should install different versions of TL, the installers will put those installations into different year directories, e.g., `/usr/local/texlive/20XX`. But they will all write to the same `texmf-local` directory. This may confuse `tlmgr` regarding package installation, yielding undocumented behavior.
+
+In the case where multiple installations of TL have written to `/usr/local/texlive/texmf-local`, it may be necessary to remove an instance manually. For example, if one has TL 2019 and TL 2020 installed, and they both wrote to the same `texmf-local` directory, when trying to remove TL 2019, `tlmgr` will report a successful removal, but do nothing.
+
+In that case, one must do something like `sudo rm -rf /usr/local/texlive/2019/`, then remove all local folders in user directories that refer to TL 2019. As long as one has not created links in `/usr/local/bin`, which one should not do, there should be few to no side effects. One should remember to look at GUI config files as well to resolve any paths and program references.
+
+Below we show how one could resolve this issue if desired by using symbolic links to create deparate versions of `texmf-local`. Yet in those sites where a fair bit of site-specific data are kept there, that may not be a desirable approach. One also could see how MacTeX handles context-switching between multiple versions.
 
 # Caveat: A Word about paths
 
@@ -74,7 +80,28 @@ See also: https://www.tecmint.com/create-a-shared-directory-in-linux/
 
 End of excursus.
 
-# Step 1: Install Vanilla TL
+# Step 1: Prep and Install Vanilla TL
+We create a path and a symlink to ensure that the specific year of TL will have correct installation information. For example, if we are installing TL 2020, we do the following:
+
+    sudo mkdir -p /usr/local/texlive/switch/2020/texmf-local
+    sudo ln -s /usr/local/texlive/switch/2020/texmf-local /usr/local/texlive/texmf-local
+
+If we wanted to install, e.g., TL 2021, we could then do:
+
+    sudo mkdir -p /usr/local/texlive/switch/2021/texmf-local
+    sudo ln -s /usr/local/texlive/switch/2021/texmf-local /usr/local/texlive/texmf-local
+
+In general, changing the symlink appears to be more related to installing and updating TL than to using it as a normal user.
+
+If later we wanted to remove TL 2020, we would do the following:
+
+    sudo ln -s /usr/local/texlive/switch/2020/texmf-local /usr/local/texlive/texmf-local
+    sudo tlmgr uninstall
+    sudo rm -rf /usr/local/texlive/switch/2020
+    sudo ln -s /usr/local/texlive/switch/2021/texmf-local /usr/local/texlive/texmf-local
+
+If we do not take such precautions, we would have to remove older installations of TL manually (see above) and check the integrity of the information in `/usr/local/texlive/texmf-local`.
+
 For installing vanilla TL see: https://www.tug.org/texlive/acquire.html
 
 **Note: Never install the symbolic links when installing vanilla TL.**
