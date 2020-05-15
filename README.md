@@ -88,17 +88,17 @@ We create a path and a symlink to ensure that the specific year of TL will have 
 
 If we wanted to install, e.g., TL 2021, we could then do:
 
-    sudo mkdir -p /usr/local/texlive/switch/2021/texmf-local
-    sudo ln -s /usr/local/texlive/switch/2021/texmf-local /usr/local/texlive/texmf-local
+    sudo mkdir -p /usr/local/texlive/switch/2021/texmf-local
+    sudo ln -s /usr/local/texlive/switch/2021/texmf-local /usr/local/texlive/texmf-local
 
 In general, changing the symlink appears to be more related to installing and updating TL than to using it as a normal user.
 
 If later we wanted to remove TL 2020, we would do the following:
 
-    sudo ln -s /usr/local/texlive/switch/2020/texmf-local /usr/local/texlive/texmf-local
+    sudo ln -s /usr/local/texlive/switch/2020/texmf-local /usr/local/texlive/texmf-local
     sudo tlmgr uninstall
     sudo rm -rf /usr/local/texlive/switch/2020
-    sudo ln -s /usr/local/texlive/switch/2021/texmf-local /usr/local/texlive/texmf-local
+    sudo ln -s /usr/local/texlive/switch/2021/texmf-local /usr/local/texlive/texmf-local
 
 If we do not take such precautions, we would have to remove older installations of TL manually (see above) and check the integrity of the information in `/usr/local/texlive/texmf-local`.
 
