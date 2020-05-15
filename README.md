@@ -10,7 +10,7 @@ Having multiple instances of TeXLive complicates matters. The problem is that th
 
 In the case where multiple installations of TL have written to `/usr/local/texlive/texmf-local`, it may be necessary to remove an instance manually. For example, if one has TL 2019 and TL 2020 installed, and they both wrote to the same `texmf-local` directory, when trying to remove TL 2019, `tlmgr` will report a successful removal, but do nothing.
 
-In that case, one must do something like `sudo rm -rf /usr/local/texlive/2019/`, then remove all local folders in user directories that refer to TL 2019. As long as one has not created links in `/usr/local/bin`, which one should not do, there should be few to no side effects. One should remember to look at GUI config files as well to resolve any paths and program references.
+In that case, one must do something like `sudo rm -rf /usr/local/texlive/2019/`, then remove all local folders in user directories that refer to TL 2019. As long as one has not created links in `/usr/local/bin`, which one should not do, there should be few side effects. Yet if the installation information for TL 2020 (such as GPG keys, etc.) got corrupted, then one must remove everything and reinstall. One should remember to look at GUI config files as well to resolve any paths and program references.
 
 Below we show how one could resolve this issue if desired by using symbolic links to create deparate versions of `texmf-local`. Yet in those sites where a fair bit of site-specific data are kept there, that may not be a desirable approach. One also could see how MacTeX handles context-switching between multiple versions.
 
