@@ -81,26 +81,34 @@ See also: https://www.tecmint.com/create-a-shared-directory-in-linux/
 End of excursus.
 
 # Step 1: Prep and Install Vanilla TL
-We create a path and a symlink to ensure that the specific year of TL will have correct installation information. For example, if we are installing TL 2020, we do the following:
+We create a path and a symlink to ensure that the specific year of TL will have correct installation information. For example, if we are installing TL 2020, we could do the following before we run the installer:
 
     sudo mkdir -p /usr/local/texlive/switch/2020/texmf-local
     sudo ln -s /usr/local/texlive/switch/2020/texmf-local /usr/local/texlive/texmf-local
 
-If we wanted to install, e.g., TL 2021, we could then do:
+This will ensure that the package installation information will be written to a discrete location. If, at a later time, we wanted to install and use, e.g., TL 2021, we could then do the following before we run the installer:
 
     sudo mkdir -p /usr/local/texlive/switch/2021/texmf-local
     sudo ln -s /usr/local/texlive/switch/2021/texmf-local /usr/local/texlive/texmf-local
 
-In general, changing the symlink appears to be more related to installing and updating TL than to using it as a normal user.
+Now we have two separate contexts for the packages installed in each version. In general, changing the symlink above appears to be more related to installing and updating TL by the superuser than to using TL as a normal user.
 
-If later we wanted to remove TL 2020, we would do the following:
+As long as we are not installing, removing, or updating packages as superuser in multiple TL versions, we can just use `tl-switch` without great concern. But as superuser, we may have to change the symlink target of `/usr/local/texlive/texmf-local` if package maintenance is needed.
 
-    sudo ln -s /usr/local/texlive/switch/2020/texmf-local /usr/local/texlive/texmf-local
+For example, if later we wanted to remove TL 2020, we could do the following:
+
+    sudo su
+    ln -s /usr/local/texlive/switch/2020/texmf-local /usr/local/texlive/texmf-local
+    tl-switch yes 2020
+
+This ensures that the symbolic link points to the desired target and switches the binary context to TL 2020. Having fully switched the context, we then do:
+
     sudo tlmgr uninstall
-    sudo rm -rf /usr/local/texlive/switch/2020
     sudo ln -s /usr/local/texlive/switch/2021/texmf-local /usr/local/texlive/texmf-local
+    tl-switch yes 2021
+    sudo rm -rf /usr/local/texlive/switch/2020
 
-If we do not take such precautions, we would have to remove older installations of TL manually (see above) and check the integrity of the information in `/usr/local/texlive/texmf-local`.
+These commands perform the uninstall, change the symbolic link to TL 2021, switch the binary context to TL 2021, and remove the obsolete target. If we do not take such precautions, we would have to remove older installations of TL manually (see above) and check the integrity of the information in `/usr/local/texlive/texmf-local`, as well as in user directories.
 
 For installing vanilla TL see: https://www.tug.org/texlive/acquire.html
 
