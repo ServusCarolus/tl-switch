@@ -5,13 +5,25 @@ The script and installation are based on the answers at:
 https://tex.stackexchange.com/questions/150892/multiple-texlive-installations
 
 # Caveat: Multiple TL Instances
-Using this script adds complexity, which adds more reasons why things might break. It adds complexity to the task of installing and maintaining multiple TL versions, but it also allows users to select different versions of TL independent of each other. Those are the tradeoffs. The worst case that has occurred to date is that one may have to uninstall, then reinstall one or more versions of TL.
+Using this script adds complexity, which adds more reasons why things might break. It adds complexity to the task of installing and maintaining multiple TL versions, but it also allows users to select different versions of TL independent of each other. Those are the tradeoffs.
 
 The directory `/usr/local/texlive/texmf-local` is used by every version of TL in use. If one should install different versions of TL, one must ensure that anything in the above directory is compatible with all the installed versions.
 
 If one has more than one TL version installed, this may confuse `tlmgr` unless one sets the binary context for root, logs out to the login window, then logs in again. Failure to do so can cause undocumented behavior. For example, if one has TL 2019 and TL 2020 installed, it is possible to set the context to TL 2019 in a terminal window, tell `tlmgr` to remove TL 2019, and have report of a successful removal, but nothing is done. That is where logging out and in hopefully fixes things.
 
-In the case of such undocumented behavior, one may have to do something like `sudo rm -rf /usr/local/texlive/2019/`, then remove all local folders in user directories that refer to TL 2019. As long as one has not created links in `/usr/local/bin`, which one should not do, there should be few, if any, side effects. One should remind users to look at ant configuration files in their home `texmf` directories and to look at GUI config files, shell resource files (`.profile`, `.bashrc`, `.cshrc`, etc.), and any other settings with paths and program references.
+One should check that the following environment variables point to the right version to be managed. For example, if one is managing TL 2020, the following will be the case:
+
+```
+TEXDIR: "/usr/local/texlive/2020"
+TEXMFCONFIG: "~/.texlive2020/texmf-config"
+TEXMFHOME: "~/texmf"
+TEXMFLOCAL: "/usr/local/texlive/texmf-local"
+TEXMFSYSCONFIG: "/usr/local/texlive/2020/texmf-config"
+TEXMFSYSVAR: "/usr/local/texlive/2020/texmf-var"
+TEXMFVAR: "~/.texlive2020/texmf-var"
+```
+
+One could export the desired value to these variables by creating a script to do so. If these variables are not pointing to the version to be managed, undocumented behavior can result. In the case of such undocumented behavior, one may have to do something like `sudo rm -rf /usr/local/texlive/2019/`, then remove all local folders in user directories that refer to TL 2019. As long as one has not created links in `/usr/local/bin`, which one should not do, there should be few, if any, side effects. One should remind users to look at ant configuration files in their home `texmf` directories and to look at GUI config files, shell resource files (`.profile`, `.bashrc`, `.cshrc`, etc.), and any other settings with paths and program references.
 
 # Caveat: A Word about paths
 It is quite probable that an IDE will not use the $PATH variable. Instead, it will use its own mechanism for handling paths. One must fix this by putting `/opt/tex/`<user>`/bin` as the first directory in the path used by the IDE, where <user> is replaced by the current username. That will ensure the proper function of this script.
