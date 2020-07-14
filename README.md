@@ -1,4 +1,4 @@
-# tl-switch
+# `tl-switch`
 Switch context between multiple vanilla TeXLive instances installed under /usr/local/texlive and the Linux distro version of TeXLive. This shell script has been tested on Ubuntu, Linux Mint, and Manjaro.
 
 The script and installation are based on the answers at:
@@ -78,7 +78,7 @@ Alternatives include:
 3. Redefine `sudo` in various ways, as in:
 https://stackoverflow.com/questions/257616/why-does-sudo-change-the-path
 
-# Excursus: Make a Group
+## Excursus: Make a Group
 We include this excursus for completeness, but we do not implement this approach with `tl-switch` in the numbered setup steps below. Nevertheless, experienced users can implement this alternate option.
 
 Another way to avoid problems with `sudo` is to make the TeXLive installation writeable to all TeX users. The problem that results is that chaos might ensue if multiple users meddle with the installation. One could avoid that by using the group approach and letting only one user in that group have write privileges to the local installation. Both alternatives are shown below.
@@ -112,14 +112,16 @@ See also: https://www.tecmint.com/create-a-shared-directory-in-linux/
 
 End of excursus.
 
-# Step 1: Install Vanilla TL
+# Installing `tl-switch`
+
+## Step 1: Install Vanilla TL
 For installing vanilla TL see: https://www.tug.org/texlive/acquire.html
 
 See also the AUR package if appropriate: https://aur.archlinux.org/packages/texlive-installer
 
 **Note: Never install the symbolic links when installing vanilla TL.**
 
-# Step 2: Create Directories
+## Step 2: Create Directories
 We create paths for each user to create directory links:
 
     sudo mkdir -p /opt/tex/root
@@ -136,23 +138,23 @@ or manually, for the Slack-tastic user `bob`:
     sudo mkdir /opt/tex/bob
     sudo chown bob:bob /opt/tex/bob
 
-# Step 3: Modifying profiles
+## Step 3: Modifying profiles
 
-## Generic
+### Generic
 We then put this snippet in each user's `.profile`:
 
     if [ -d "/opt/tex/$USER/bin" ] ; then
         PATH="/opt/tex/$USER/bin:$PATH"
     fi
 
-## Debian-based
+### Debian-based
 Here root's `.profile` is not sourced in the same manner. If we put the same snippet above in root's `.bashrc`, everything will work as expected.
 
 Another approach would put the snippet in everyone's `.bashrc`, then add `source .bashrc` to everyone's `.profile`. That would renew the path environment every time one opens a terminal. Or one can set terminals to open a login shell by default. Consider also visiting the (hidden) files in `/etc/skel` if making new users on a server in order to make changes automatically, but know what you are doing.
 
 When editing root's `.bashrc`, remember to use `su -`, `sudo su -`, or specify `/root/.bashrc` as the file.
 
-# Step 4: Install the Script
+## Step 4: Install the Script
 We go to the directory where we downloaded or cloned the repository and locate the `tl-switch` script. We then type:
 
     sudo cp ./tl-switch /usr/local/bin
@@ -160,10 +162,13 @@ We go to the directory where we downloaded or cloned the repository and locate t
     
 All users now will have access to running the script.
 
-# Step 5: Reboot
+## Step 5: Reboot
 After the install procedure is done, it is good to restart the machine before using TeXLive so that the paths for root and the users can be updated properly.
 
-# Step 6: Switching to and from Vanilla TeXLive
+# Using `tl-switch`
+
+## General
+
 As a new version of TL is released, the default year is updated. When a user (or root) wants to enable access to the most current year release of vanilla TL under `/usr/local/texlive`, one need only type:
 
     tl-switch yes
@@ -176,7 +181,7 @@ To disable vanilla TL and use the distro version, one need only type:
 
     tl-switch no
 
-# Context Changes
+## Context Changes
 
 **After using `tl-switch` to change TL versions, it is best to log out immediately, then log in again to get all the paths and contexts right.**
 
@@ -187,6 +192,3 @@ To disable vanilla TL and use the distro version, one need only type:
  3. One first should install/update the system TeX packages as root. After that, one can install vanilla TeXlive and use `tl-switch yes` to have the default TeXlive for the root account point to the desired installation. This allows one to become root and update TL, while users can point to whatever TL version they want. When updating system TeXlive packages, is is recommended first to use `tl-switch no` before updating, then `tl-switch yes` to revert back to the desired vanilla TL version.
 
 See installation Step 3 above for more on how to tackle these issues.
-
-# Final Thoughts
-An immediate downside to this method is needing to, e.g., `su -` to switch contexts to the superuser before running `tlmgr`. Another downside is adding a level of complexity when using different versions and updating packages. Its benefits include isolating users from each other and allowing each user to change contexts without extensive system modification or restarting the system. This script is designed with a server or multiuser university environment in mind.
