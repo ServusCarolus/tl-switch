@@ -13,7 +13,7 @@ If one has more than one TL version installed, this may confuse `tlmgr` unless o
 
 ## Arch-based Notes
 
-There is an AUR package that allows one to install the current TL, yet tells Arch, Manjaro, etc., that its package dependencies are met. This script will work with that package, but it is recommended that one not make any major modifications that would wreck the install and removal scripts of the package and potentially create a lot of work to remove the package and ensure the integrity of the package database, cache, and so on.
+There is an AUR package https://aur.archlinux.org/packages/texlive-installer that allows one to install the current TL, yet tells Arch, Manjaro, etc., that its package dependencies are met. This script will work with that package, but it is recommended that one not make any major modifications that would wreck the install and removal scripts of the package and potentially create a lot of work to remove the package and ensure the integrity of the package database, cache, and so on.
 
 ## General Notes
 
