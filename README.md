@@ -1,10 +1,12 @@
-# `tl-switch`
+# `tl-switch` Readme
+
 Switch context between multiple vanilla TeXLive instances installed under /usr/local/texlive and the Linux distro version of TeXLive. This shell script has been tested on Ubuntu, Linux Mint, and Manjaro.
 
 The script and installation are based on the answers at:
 https://tex.stackexchange.com/questions/150892/multiple-texlive-installations
 
 # Caveat: Multiple TL Instances
+
 Using this script adds complexity, which adds more reasons why things might break. It adds complexity to the task of installing and maintaining multiple TL versions, but it also allows users to select different versions of TL independent of each other. Those are the tradeoffs.
 
 The directory `/usr/local/texlive/texmf-local` is used by every version of TL in use. If one should install different versions of TL, one must ensure that anything in the above directory is compatible with all the installed versions.
@@ -34,7 +36,8 @@ One could export the desired value to these variables by creating a script to do
 One should remind users to look at any configuration files in their home `texmf` directories and to look at GUI config files, shell resource files (`.profile`, `.bashrc`, `.cshrc`, etc.), and any other settings with paths and program references.
 
 # Caveat: A Word about paths
-It is quite probable that an IDE will not use the $PATH variable. Instead, it will use its own mechanism for handling paths. One must fix this by putting `/opt/tex/`<user>`/bin` as the first directory in the path used by the IDE, where <user> is replaced by the current username. That will ensure the proper function of this script.
+
+It is quite probable that an IDE will not use the `$PATH` shell variable. Instead, it will use its own mechanism for handling paths. One must fix this by putting `/opt/tex/`<user>`/bin` as the first directory in the path used by the IDE, where <user> is replaced by the current username. That will ensure the proper function of this script.
 
 Also, be aware that any symbolic links or stale config files that point to a different path than the $PATH shell variable can cause undocumented behavior. When using this script, it is recommended to check all IDE settings, local texmf trees, symbolic links, etc., to prevent some paths being used in some circumstances, while others are used in different ones.
 
@@ -46,20 +49,42 @@ Observe caution when editing files with elevated privileges. For example, `sudo 
 
 Among Linux distributions there are differences in how `sudo` works, as well as differences in how `.profile`, `.bashrc`, and other resource and configuration files are sourced and how their changes are retained.
 
-One need only compare a Debian-based `.bashrc` with an Arch-based `.bashrc` to get the sense that some very different philosophies are in play. This is allowable because Unixlike operating systems offer much flexibility within a general framework. Debian's philosophy tends to be more restrictive in order to make things generally more robust. This tends to work well for end-users wishing to use things out of the box. But if you want to use this script, you are not one of those users.
+One need only compare a Debian-based `.bashrc` with an Arch-based `.bashrc` to get the sense that some very different philosophies are in play. This is allowable because Unixlike operating systems offer much flexibility within a general framework.
+
+Debian's philosophy tends to be more restrictive in order to make things generally more robust. This tends to work well for end-users wishing to use things out of the box. But if you want to use this script, you likely are not one of those users.
+
+### Invoking `su -` with a Root Environment
 
 Using `sudo` will have different behavior on different Linux distributions. In the case where one must have a clean root environment, please use:
 
 1. Ubuntu-based: `sudo su -`
 
-   Especially Ubuntu does not set up root's account in order to have greater security. One must gain root privileges via `sudo`. Debian may or may not require this, but Debian's implementation of `sudo` is a key factor in this section.
+   Especially Ubuntu does not set up root's account in order to have greater security. One must gain root privileges via `sudo`. Debian. Mint, and so on may or may not require this, but Debian's implementation of `sudo` is a key factor in this section.
    
 2. Arch-based and likely others: `su -`
 
-The hyphen after `su` switches all environment references to root; otherwise, the environment will use the variables from the user's home where `su` was launched. Thus, one should avoid running many desktop-integrated GUI programs using `sudo`. Doing so may create files owned by root in one's home directory tree. That can prevent user programs from saving information properly. One can find such files using something like `find "$HOME" -type f -user root`. Then it is simple to use `sudo chown` to fix the ownership. This tends to be an issue created by quick-and-dirty, bad advice on many online fora.
+The hyphen after `su` switches all environment references to root; otherwise, the environment will use the variables from the user's home where `su` was launched. That could introduce subtle errors. One definitely needs to use this full context switch with the `tl-switch` script. Even when using `install-tl` or `tlmgr`, it may be helpful to use `su -` to switch contexts fully to the superuser. Note that some distros have packages that will run the latest `install-tl` for you.
 
-When using `tl-switch`, one should type, e.g., `sudo su -` to switch contexts to the superuser before running `tlmgr`. In distributions where the superuser has a password set, one can just use `su -`. One definitely needs to use the full context switch with the `tl-switch` script, even if one does not need to do that with `install-tl`.
-        
+### Fixing the Mess that Some Online Fora Make
+
+When searching online fora (the neutral plural of *forum*), one often sees someone suggest that a user invoke a desktop-integrated application with `sudo` via a terminal. That is a mistake on many levels and can cause undocumented behavior because:
+
+1. That application may have its own hidden directory, e.g. `.appname`, where it saves configurations, incremental changes, and such. That could be in one's home directory or even under `~/.local/share`.
+
+2. It may change the contents of a directory, e.g. `appname`, which exists as a subdirectory of `~/.config` and possibly `~/.cache`.
+
+3. It could change desktop configuration files, such as keys in `~/.config/dconf/user`.
+
+4. It could modify shared files that are synchronized over a LAN or an Internet service, such as DropBox.
+
+One generally should avoid running desktop-integrated GUI applications with `sudo`. Try to use command-line tools that will not touch various files by default. Otherwise, one can create files owned by root in one's home directory tree.
+
+One can find such files using something like
+
+    find "$HOME" -type f -user root
+
+Then it is simple to use `sudo chown "$USER":"$USER"` on each file to fix the ownership problems. One also may need to fix permissions.
+
 ## Debian's `sudo` and `tlmgr`
 
 Even if one were to create a shell script in `/etc/profile.d` in order to put a symbolic link to the vanilla TL path before `/usr/bin` in the command search path, the `sudo` command will not follow that link by default in Debian-based distributions.
@@ -79,7 +104,10 @@ Alternatives include:
 https://stackoverflow.com/questions/257616/why-does-sudo-change-the-path
 
 ## Excursus: Make a Group
-We include this excursus for completeness, but we do not implement this approach with `tl-switch` in the numbered setup steps below. Nevertheless, experienced users can implement this alternate option.
+
+**We do not implement this approach with `tl-switch` in the numbered setup steps below.**
+
+We include this excursus only for completeness. Nevertheless, experienced users can implement this alternate option. YMMV.
 
 Another way to avoid problems with `sudo` is to make the TeXLive installation writeable to all TeX users. The problem that results is that chaos might ensue if multiple users meddle with the installation. One could avoid that by using the group approach and letting only one user in that group have write privileges to the local installation. Both alternatives are shown below.
 
@@ -115,13 +143,15 @@ End of excursus.
 # Installing `tl-switch`
 
 ## Step 1: Install Vanilla TL
+
 For installing vanilla TL see: https://www.tug.org/texlive/acquire.html
 
 See also the AUR package if appropriate: https://aur.archlinux.org/packages/texlive-installer
 
-**Note: Never install the symbolic links when installing vanilla TL.**
+**Note: Never install the symbolic links when installing vanilla TL and `tl-switch`.**
 
 ## Step 2: Create Directories
+
 We create paths for each user to create directory links:
 
     sudo mkdir -p /opt/tex/root
@@ -133,37 +163,80 @@ We repeat the following two lines for each user, most likely substituting each u
     sudo mkdir "/opt/tex/$USER"
     sudo chown "$USER":$USER" "/opt/tex/$USER"
 
-or manually, for the Slack-tastic user `bob`:
+or manually, for the user `bob` (who has much Slack):
 
     sudo mkdir /opt/tex/bob
     sudo chown bob:bob /opt/tex/bob
 
 ## Step 3: Modifying profiles
 
-### Generic
+### Generic User
+
 We then put this snippet in each user's `.profile`:
 
     if [ -d "/opt/tex/$USER/bin" ] ; then
         PATH="/opt/tex/$USER/bin:$PATH"
     fi
 
-### Debian-based
-Here root's `.profile` is not sourced in the same manner. If we put the same snippet above in root's `.bashrc`, everything will work as expected.
+### Root
 
-Another approach would put the snippet in everyone's `.bashrc`, then add `source .bashrc` to everyone's `.profile`. That would renew the path environment every time one opens a terminal. Or one can set terminals to open a login shell by default. Consider also visiting the (hidden) files in `/etc/skel` if making new users on a server in order to make changes automatically, but know what you are doing.
+It appears in many distributions that root's `.profile` is not sourced in the same manner as that of a normal user. If we put the same snippet above in root's `.bashrc`, everything will work as expected. When editing root's `.bashrc`, remember to use `su -`, `sudo su -`, or specify `/root/.bashrc` as the file.
 
-When editing root's `.bashrc`, remember to use `su -`, `sudo su -`, or specify `/root/.bashrc` as the file.
+### Alternate Fixes
+
+Another approach would put the snippet in everyone's `.bashrc`, then add to everyone's `.profile` the following:
+
+    source .bashrc
+
+That would renew the path environment every time one opens a terminal.
+
+Another alternative would set terminals to open a login shell by default.
+
+If making system-wide changes on a server, one might need to alter the hidden files in `/etc/skel` in order to ensure automatic setup for each new user.
 
 ## Step 4: Install the Script
+
 We go to the directory where we downloaded or cloned the repository and locate the `tl-switch` script. We then type:
 
     sudo cp ./tl-switch /usr/local/bin
     chmod +x /usr/local/bin/tl-switch
     
-All users now will have access to running the script.
+All users now should have access to running the script, since `/usr/local/bin` usually is in the command search path.
 
-## Step 5: Reboot
+The command `ls /opt/tex` should show one subdirectory for each user.
+
+As root, run `tl-switch yes`. One should see something like the following:
+
+```
+Context switch path exists: /opt/tex/root
+Setting /opt/tex/root/bin to target:
+/usr/local/texlive/2020/bin/x86_64-linux
+```
+
+Exit from the root shell to the normal user's login. Again, run `tl-switch yes`. For the normal user `bob`, one should see something like:
+
+```
+Context switch path exists: /opt/tex/bob
+Setting /opt/tex/bob/bin to target:
+/usr/local/texlive/2020/bin/x86_64-linux
+```
+
+Note, however, that `$PATH` has not been updated yet. One must log out and log in at least.
+
+## Step 5: Reboot or Logout/Login
+
 After the install procedure is done, it is good to restart the machine before using TeXLive so that the paths for root and the users can be updated properly.
+
+## Step 6: Test
+
+The command `ls /opt/tex` should show one subdirectory for each user.
+
+For the normal user `bob`, one would expect to see something like:
+
+    echo $PATH
+    /opt/tex/bob/bin:/home/bob/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin
+
+One should see much the same with `root`. If one does not see this, then check the user's `.profile` if it was edited correctly, or root's `.bashrc`. Also check if the directories exist under `/opt/tex` and if they have the correct permissions.
 
 # Using `tl-switch`
 
