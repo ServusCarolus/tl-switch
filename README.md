@@ -63,11 +63,11 @@ Using `sudo` will have different behavior on different Linux distributions. In t
    
 2. Arch-based and likely others: `su -`
 
-The hyphen after `su` switches all environment references to root; otherwise, the environment will use the variables from the user's home where `su` was launched. That could introduce subtle errors. One definitely needs to use this full context switch with the `tl-switch` script. Even when using `install-tl` or `tlmgr`, it may be helpful to use `su -` to switch contexts fully to the superuser. Note that some distros have packages that will run the latest `install-tl` for you.
+For both of the points above, the hyphen after `su` switches all environment references to root. Otherwise, the environment will use the variables from the user's home where `su` was launched. That could introduce subtle errors. One definitely needs to use this full context switch with the `tl-switch` script. Even when using `install-tl` or `tlmgr`, it may be helpful to use `su -` to switch contexts fully to the superuser. Note that some distros have packages that will run the latest `install-tl` for you.
 
 ### Fixing the Mess that Some Online Fora Make
 
-When searching online fora (the neutral plural of *forum*), one often sees someone suggest that a user invoke a desktop-integrated application with `sudo` via a terminal. That is a mistake on many levels and can cause undocumented behavior because:
+When searching online fora (the neutral plural of *forum*), one often sees someone suggest that a user invoke a desktop-integrated application with `sudo` via a terminal. That is a mistake on many levels and can cause undocumented behavior because it could make the root user, not the normal user, the owner of one or more of the following:
 
 1. That application may have its own hidden directory, e.g. `.appname`, where it saves configurations, incremental changes, and such. That could be in one's home directory or even under `~/.local/share`.
 
@@ -77,7 +77,7 @@ When searching online fora (the neutral plural of *forum*), one often sees someo
 
 4. It could modify shared files that are synchronized over a LAN or an Internet service, such as DropBox.
 
-One generally should avoid running desktop-integrated GUI applications with `sudo`. Try to use command-line tools that will not touch various files by default. Otherwise, one can create files owned by root in one's home directory tree.
+If root owns one or more of these files, that could cause the desktop-integrated application not to run properly. One generally should avoid running desktop-integrated GUI applications with `sudo`. Try to use command-line tools that will not touch various files by default.
 
 One can find such files using something like
 
@@ -168,31 +168,57 @@ or manually, for the user `bob` (who has much Slack):
     sudo mkdir /opt/tex/bob
     sudo chown bob:bob /opt/tex/bob
 
+After these directories are created, one *will not see* a path change yet. These directories merely serve as a point where a symlink to a TL bin directory will be created by the `tl-switch` script.
+
 ## Step 3: Modifying profiles
 
-### Generic User
+Different Linux distributions source `~/.profile` and `~/.bashrc` differently. This suboptimal situation makes designing a universal approach to configuration quite difficult, and it is certainly annoying to users. There are interactive and non-interactive shells, and both have login and non-login variants. Different files are sourced in each case, usually `~/.profile` for a login shell. See https://askubuntu.com/questions/438150/scripts-in-etc-profile-d-being-ignored. Yet this is not necessarily consistent, for example, even among distros in the Debian ecosystem.
 
-We then put this snippet in each user's `.profile`:
+In this step we will put the following snippet **somewhere**, depending on the distribution used:
 
     if [ -d "/opt/tex/$USER/bin" ] ; then
         PATH="/opt/tex/$USER/bin:$PATH"
     fi
 
-### Root
+### Generic User, MX-Linux
 
-It appears in many distributions that root's `.profile` is not sourced in the same manner as that of a normal user. If we put the same snippet above in root's `.bashrc`, everything will work as expected. When editing root's `.bashrc`, remember to use `su -`, `sudo su -`, or specify `/root/.bashrc` as the file.
+It seems that some Debian-based distros do not necessarily source either `/etc/profile` or `~/.profile` for normal users: https://forum.mxlinux.org/viewtopic.php?t=49505.
+
+One can source `~/.profile` in `~/.xsessionrc` as a workaround and put the snippet above in `~/.profile`.
+
+Or one could put the snippet above in `~/.bashrc`. That seems to be sourced in all cases.
+
+### Generic User, others
+
+Linux Mint, Manjaro, and many other distributions do source `~/.profile` at login. We put the snippet above in each user's `.profile`.
+
+### Root, MX-Linux
+
+MX-Linux sources root's `.profile`, so one can put the snippet above in that file.
+
+When editing root's `.profile`, remember to use `su -`, `sudo su -`, or specify `/root/.profile` as the file.
+
+### Root, others
+
+It appears in many distributions that root's `.profile` is *not sourced* in the same manner as that of a normal user. Instead, root's `.bashrc` is sourced.
+
+If we put the same snippet above in root's `.bashrc`, everything will work as expected. When editing root's `.bashrc`, remember to use `su -`, `sudo su -`, or specify `/root/.bashrc` as the file.
 
 ### Alternate Fixes
 
-Another approach would put the snippet in everyone's `.bashrc`, then add to everyone's `.profile` the following:
+Here are things to try if the solutions above do not work.
 
-    source .bashrc
+1. Put the snippet in everyone's `.bashrc`, then add to everyone's `.profile` the following:
 
-That would renew the path environment every time one opens a terminal.
+        source ~/.bashrc
 
-Another alternative would set terminals to open a login shell by default.
+    That would renew the path environment every time one opens a terminal.
 
-If making system-wide changes on a server, one might need to alter the hidden files in `/etc/skel` in order to ensure automatic setup for each new user.
+2. Set terminals to open a login shell by default.
+
+3. If making system-wide changes on a server, one might need to alter the hidden files in `/etc/skel` in order to ensure automatic setup for each new user.
+
+Even after this step, one *will not see* a path change yet.
 
 ## Step 4: Install the Script
 
@@ -207,19 +233,15 @@ The command `ls /opt/tex` should show one subdirectory for each user.
 
 As root, run `tl-switch yes`. One should see something like the following:
 
-```
-Context switch path exists: /opt/tex/root
-Setting /opt/tex/root/bin to target:
-/usr/local/texlive/2020/bin/x86_64-linux
-```
+    Context switch path exists: /opt/tex/root
+    Setting /opt/tex/root/bin to target:
+    /usr/local/texlive/2020/bin/x86_64-linux
 
 Exit from the root shell to the normal user's login. Again, run `tl-switch yes`. For the normal user `bob`, one should see something like:
 
-```
-Context switch path exists: /opt/tex/bob
-Setting /opt/tex/bob/bin to target:
-/usr/local/texlive/2020/bin/x86_64-linux
-```
+    Context switch path exists: /opt/tex/bob
+    Setting /opt/tex/bob/bin to target:
+    /usr/local/texlive/2020/bin/x86_64-linux
 
 Note, however, that `$PATH` has not been updated yet. One must log out and log in at least.
 
