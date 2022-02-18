@@ -221,7 +221,7 @@ Download or clone this repository. Unpack the archive if needed. Go to the direc
 Locate the `tl-switch` script, then type:
 
     sudo cp ./tl-switch /usr/local/bin
-    chmod +x /usr/local/bin/tl-switch
+    sudo chmod +x /usr/local/bin/tl-switch
     
 All users now should have access to running the script, since `/usr/local/bin` usually is in the command search path.
 
