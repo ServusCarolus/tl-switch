@@ -16,8 +16,8 @@ message () {
     echo "           \"tl-switch no\""
     echo ""
     echo "This script is used to switch between vanilla TeXLive and the"
-    echo "version of TeXLive installed on a system like Debian, Ubuntu,"
-    echo "Mint, etc. See the README.md file for installation."
+    echo "packaged version of TeXLive installed on a system, e.g. Debian,"
+    echo "etc. See the README.md file for setup and installation."
     exit 1
 }
 
@@ -27,6 +27,8 @@ then
     echo "Context switch path exists: /opt/tex/$USER"
 else
     echo "You have not set up the ability to switch contexts."
+    echo "See the README.md file for instructions on how to"
+    echo "set up the context and install the script."
     message
 fi
 
@@ -34,37 +36,25 @@ fi
 # possible results and get the newest one.
 if [ -z "$2" ]
 then
-    if   [ -d "/usr/local/texlive/2026" ]
-    then
-        year="2026"
-    elif [ -d "/usr/local/texlive/2025" ]
-    then
-        year="2025"
-    elif [ -d "/usr/local/texlive/2024" ]
-    then
-        year="2024"
-    elif [ -d "/usr/local/texlive/2023" ]
-    then
-        year="2023"
-    elif [ -d "/usr/local/texlive/2022" ]
-    then
-        year="2022"
-    elif [ -d "/usr/local/texlive/2021" ]
-    then
-        year="2021"
-    elif [ -d "/usr/local/texlive/2020" ]
-    then
-        year="2020"
-    elif [ -d "/usr/local/texlive/2019" ]
-    then
-        year="2019"
-    elif [ -d "/usr/local/texlive/2018" ]
-    then
-        year="2018"
-    elif [ -d "/usr/local/texlive/2017" ]
-    then
-        year="2017"
-    fi
+# Start with the current year, then add one in case of testing
+# a future release.
+    texyear=$(date +"%Y")
+    texyear=$((texyear+1))
+# Now pick whatever the most recent installed version may be.
+# Scan the range from current year down to 2000.
+    while [ $texyear > 1999 ]
+    do
+# Give year a known initial value that will trigger a directory
+# not found error if a valid install directory is absent.
+        year=0
+        installdir="/usr/local/texlive/$texyear"
+        if   [ -d $installdir ]
+        then
+            year=$texyear
+            break
+        fi
+        texyear=$((texyear-1))
+    done
 # If an argument for year exists, use that argument.
 else
     year="$2"
