@@ -40,13 +40,13 @@ then
 # a future release.
     texyear=$(date +"%Y")
     texyear=$((texyear+1))
+# Give year a known initial value that will trigger a directory
+# not found error if a valid install directory is absent.
+        year=0
 # Now pick whatever the most recent installed version may be.
 # Scan the range from current year down to 2000.
     while (( $texyear > 1999 ))
     do
-# Give year a known initial value that will trigger a directory
-# not found error if a valid install directory is absent.
-        year=0
         installdir="/usr/local/texlive/$texyear"
         if   [ -d $installdir ]
         then
