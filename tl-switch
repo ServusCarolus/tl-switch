@@ -42,7 +42,7 @@ then
     texyear=$((texyear+1))
 # Now pick whatever the most recent installed version may be.
 # Scan the range from current year down to 2000.
-    while [ $texyear > 1999 ]
+    while (( $texyear > 1999 ))
     do
 # Give year a known initial value that will trigger a directory
 # not found error if a valid install directory is absent.
