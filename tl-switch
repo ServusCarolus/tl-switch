@@ -42,7 +42,7 @@ then
     texyear=$((texyear+1))
 # Give year a known initial value that will trigger a directory
 # not found error if a valid install directory is absent.
-        year=0
+    year=0
 # Now pick whatever the most recent installed version may be.
 # Scan the range from current year down to 2000.
     while (( $texyear > 1999 ))
@@ -55,14 +55,21 @@ then
         fi
         texyear=$((texyear-1))
     done
-# If an argument for year exists, use that argument.
+# At this point, year will be zero or a valid year greater than 1999.
+#
+# If an argument for year exists, use that argument instead.
+# This allows use of an arbitrary year outside of the detection range
+# or access to more than the first year found within that range.
 else
     year="$2"
 fi
 
 # Try to find the path for the context switch. If there are 32-bit
 # binary files, use them. Otherwise, check for 64-bit files.
-# If that fails, throw an error.
+# If that fails, throw an error. Note that both 32-bit and 64-bit
+# files should not exist within one distribution year.
+# Yet, if one really desired to do it, this would allow different
+# years to contain either 32-bit or 64-bit files.
 if [ "$1" = "yes" ]
 then
     if [ -d "/usr/local/texlive/$year/bin/i386-linux" ]
@@ -77,8 +84,11 @@ then
     fi
 fi
 
-# To do the vanilla switch, destroy the current link and
-# create a new link in its place.
+# This is the part where creating the context framework at
+# installation becomes important. To do the vanilla switch,
+# destroy the current symbolic link and create a new link
+# in its place. This does not do a lot of error checking and
+# probably needs more work.
 if [ "$1" = "yes" ]
 then
     if [ -e "/opt/tex/$USER/bin" ]
